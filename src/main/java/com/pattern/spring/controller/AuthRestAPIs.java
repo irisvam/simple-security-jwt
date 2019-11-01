@@ -12,7 +12,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +29,7 @@ import com.pattern.spring.model.Role;
 import com.pattern.spring.model.User;
 import com.pattern.spring.repositories.RoleRepository;
 import com.pattern.spring.repositories.UserRepository;
+import com.pattern.spring.service.UserPrinciple;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -60,9 +60,9 @@ public class AuthRestAPIs {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
 		final String jwt = jwtProvider.generateJwtToken(authentication);
-		final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		final UserPrinciple userDetails = (UserPrinciple) authentication.getPrincipal();
 		
-		return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), userDetails.getAuthorities()));
+		return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getName(), userDetails.getEmail(), userDetails.getAuthorities()));
 	}
 	
 	@PostMapping("/signup")
