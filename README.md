@@ -1,4 +1,4 @@
-# simple-security
+# simple-security-jwt
 Basic Spring REST with Security and JWT Authentication (JSON Web Token)
 
 ### Technologies
