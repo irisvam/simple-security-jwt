@@ -6,6 +6,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.pattern.spring.enums.RoleName;
+
 public class SignUpForm {
 	
 	@NotBlank
@@ -21,7 +23,7 @@ public class SignUpForm {
 	@Email
 	private String email;
 	
-	private Set<String> role;
+	private Set<RoleName> role;
 	
 	@NotBlank
 	@Size(min = 6, max = 40)
@@ -57,12 +59,12 @@ public class SignUpForm {
 		this.email = email;
 	}
 	
-	public Set<String> getRole() {
+	public Set<RoleName> getRole() {
 		
 		return role;
 	}
 	
-	public void setRole(final Set<String> role) {
+	public void setRole(final Set<RoleName> role) {
 		
 		this.role = role;
 	}

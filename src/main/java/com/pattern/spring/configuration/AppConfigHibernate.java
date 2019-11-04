@@ -29,7 +29,7 @@ public class AppConfigHibernate {
 	@Autowired
 	private Environment environment;
 	
-	@Bean
+	@Bean(destroyMethod = "close")
 	public DataSource dataSource() throws IllegalStateException, PropertyVetoException {
 		
 		final ComboPooledDataSource dataSource = new ComboPooledDataSource();
@@ -37,6 +37,10 @@ public class AppConfigHibernate {
 		dataSource.setJdbcUrl(environment.getRequiredProperty("jdbc.url"));
 		dataSource.setUser(environment.getRequiredProperty("jdbc.username"));
 		dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
+		dataSource.setTestConnectionOnCheckout(false);
+		dataSource.setTestConnectionOnCheckin(true);
+		dataSource.setIdleConnectionTestPeriod(180);
+		dataSource.setPreferredTestQuery("SELECT 1");
 		
 		return dataSource;
 	}
@@ -59,9 +63,10 @@ public class AppConfigHibernate {
 		final Properties properties = new Properties();
 		properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
 		properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"));
-		properties.put("hibernate.temp.use_jdbc_metadata_defaults", false);
 		properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
 		properties.put("hibernate.format_sql", environment.getRequiredProperty("hibernate.format_sql"));
+		properties.put("hibernate.jdbc.lob.non_contextual_creation", true);
+		// properties.put("hibernate.temp.use_jdbc_metadata_defaults", false);
 		
 		return properties;
 	}

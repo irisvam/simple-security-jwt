@@ -1,11 +1,13 @@
 package com.pattern.spring.controller;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,13 +16,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pattern.spring.configuration.jwt.JwtProvider;
+import com.pattern.spring.enums.MessageProperties;
 import com.pattern.spring.enums.RoleName;
+import com.pattern.spring.exception.ParameterNotValidException;
 import com.pattern.spring.message.request.LoginForm;
 import com.pattern.spring.message.request.SignUpForm;
 import com.pattern.spring.message.response.JwtResponse;
@@ -37,6 +42,9 @@ import com.pattern.spring.service.UserPrinciple;
 public class AuthRestAPIs {
 	
 	@Autowired
+	MessageSource sourceMessage;
+	
+	@Autowired
 	AuthenticationManager authenticationManager;
 	
 	@Autowired
@@ -50,6 +58,8 @@ public class AuthRestAPIs {
 	
 	@Autowired
 	JwtProvider jwtProvider;
+	
+	private final Locale locale = new Locale("pt_br");
 	
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody final LoginForm loginRequest) {
@@ -69,23 +79,26 @@ public class AuthRestAPIs {
 	public ResponseEntity<?> registerUser(@Valid @RequestBody final SignUpForm signUpRequest) {
 		
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return new ResponseEntity<>(new ResponseMessage("Fail -> Username is already taken!"), HttpStatus.BAD_REQUEST);
+			
+			throw new ParameterNotValidException(sourceMessage.getMessage(MessageProperties.POST_BAD_REQUEST.getDescricao(),
+					new Object[] { "username", signUpRequest.getUsername() }, locale));
 		}
 		
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return new ResponseEntity<>(new ResponseMessage("Fail -> Email is already in use!"), HttpStatus.BAD_REQUEST);
+			
+			throw new ParameterNotValidException(sourceMessage.getMessage(MessageProperties.POST_BAD_REQUEST.getDescricao(),
+					new Object[] { "email", signUpRequest.getEmail() }, locale));
 		}
 		
 		// Creating user's account
 		final User user = new User(signUpRequest.getName(), signUpRequest.getUsername(), signUpRequest.getEmail(),
 				encoder.encode(signUpRequest.getPassword()));
 		
-		final Set<String> strRoles = signUpRequest.getRole();
 		final Set<Role> roles = new HashSet<Role>();
 		
-		strRoles.forEach(role -> {
+		signUpRequest.getRole().forEach(role -> {
 			switch (role) {
-				case "admin":
+				case ROLE_ADMIN:
 					final Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
 							.orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not find."));
 					roles.add(adminRole);
@@ -102,6 +115,12 @@ public class AuthRestAPIs {
 		userRepository.save(user);
 		
 		return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.OK);
+	}
+	
+	@GetMapping("/")
+	public String access() {
+		
+		return ">>> Autorized without token";
 	}
 	
 }
