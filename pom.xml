@@ -16,7 +16,7 @@
 		<hibernate.version>5.2.17.Final</hibernate.version>
 		<postgresql.version>42.2.5</postgresql.version>
 		<jackson.version>2.9.10.1</jackson.version>
-		<jsonwebtoken.version>0.9.0</jsonwebtoken.version>
+		<jsonwebtoken.version>0.9.1</jsonwebtoken.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

@@ -10,7 +10,7 @@ Basic Spring REST with Security and JWT Authentication (JSON Web Token)
 * Postgres 42.2.5
 * Hibernate 5.2.17.Final
 * Jackson 2.9.10
-* Json Web Token 0.9.0
+* Json Web Token 0.9.1
 
 ### Mechanics
 

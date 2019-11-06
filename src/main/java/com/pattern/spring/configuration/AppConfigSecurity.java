@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.pattern.spring.configuration.jwt.JwtAccessDeniedHandler;
 import com.pattern.spring.configuration.jwt.JwtAuthEntryPoint;
 import com.pattern.spring.configuration.jwt.JwtAuthTokenFilter;
 import com.pattern.spring.service.UserDetailsServiceImpl;
@@ -29,11 +30,11 @@ public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JwtAuthEntryPoint unauthorizedHandler;
 	
-	@Bean
-	public JwtAuthTokenFilter authenticationJwtTokenFilter() {
-		
-		return new JwtAuthTokenFilter();
-	}
+	@Autowired
+	private JwtAccessDeniedHandler accessDeniedHandler;
+	
+	@Autowired
+	public JwtAuthTokenFilter jwtAuthTokenFilter;
 	
 	@Override
 	public void configure(final AuthenticationManagerBuilder authBuilder) throws Exception {
@@ -58,10 +59,10 @@ public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
 	protected void configure(final HttpSecurity http) throws Exception {
 		
 		http.cors().and().csrf().disable().authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and()
-				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and().exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
-		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 	
 }

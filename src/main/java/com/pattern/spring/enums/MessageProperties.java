@@ -15,6 +15,7 @@ package com.pattern.spring.enums;
  * @see #PUT_OK
  * @see #BAD_REQUEST
  * @see #POST_BAD_REQUEST
+ * @see #POST_BAD_CREDENTIALS
  */
 public enum MessageProperties {
 
@@ -29,7 +30,8 @@ public enum MessageProperties {
 	PUT_NOT_FOUND 	("controller.put.not_found"),
 	PUT_OK 			("controller.put.ok"),
 	BAD_REQUEST		("controller.parameter.bad_request"),
-	POST_BAD_REQUEST("controller.post.bad_request");
+	POST_BAD_REQUEST("controller.post.bad_request"),
+	POST_BAD_CREDENTIALS ("controller.post.bad_credencial");
 
 	private final String descricao;
 
@@ -57,4 +59,5 @@ public enum MessageProperties {
 
 		return MessageProperties.values()[ordinal()];
 	}
+
 }

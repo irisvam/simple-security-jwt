@@ -4,9 +4,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -18,6 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.pattern.spring.exception.ParameterNotValidException;
 import com.pattern.spring.exception.ResourceNotFoundException;
+import com.pattern.spring.exception.UnauthorizedException;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -38,6 +44,43 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 				.title("Parâmetro não aceitável!").detail(pnvException.getMessage()).devMessage(pnvException.getClass().getName()).build();
 		
 		return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<?> handlerUnauthotizedException(final UnauthorizedException unauthException) {
+		
+		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.UNAUTHORIZED.value())
+				.title("Não Autorizado!").detail(unauthException.getMessage()).devMessage(unauthException.getClass().getName()).build();
+		
+		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<?> handleAuthenticationException(AuthenticationException authException, HttpServletResponse response) {
+		
+		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.UNAUTHORIZED.value())
+				.title("Não Autorizado!").detail(authException.getMessage()).devMessage(authException.getClass().getName()).build();
+		
+		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<?> handleAuthenticationException(AccessDeniedException accessException, HttpServletResponse response) {
+		
+		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.FORBIDDEN.value())
+				.title("Não Autorizado!").detail(accessException.getMessage()).devMessage(accessException.getClass().getName()).build();
+		
+		return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+	}
+	
+	@ExceptionHandler(InsufficientAuthenticationException.class)
+	public ResponseEntity<?> handleInsufficientAuthenticationException(InsufficientAuthenticationException insauthException,
+			HttpServletResponse response) {
+		
+		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.UNAUTHORIZED.value())
+				.title("Não Autorizado!").detail(insauthException.getMessage()).devMessage(insauthException.getClass().getName()).build();
+		
+		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
