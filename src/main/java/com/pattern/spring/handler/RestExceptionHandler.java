@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -59,13 +60,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<?> handleAuthenticationException(AuthenticationException authException, HttpServletResponse response) {
 		
 		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.UNAUTHORIZED.value())
-				.title("Não Autorizado!").detail(authException.getMessage()).devMessage(authException.getClass().getName()).build();
+				.title("Não Autenticado!").detail(authException.getMessage()).devMessage(authException.getClass().getName()).build();
+		
+		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(AuthenticationServiceException.class)
+	public ResponseEntity<?> handleAuthenticationServiceException(AuthenticationServiceException authException) {
+		
+		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.UNAUTHORIZED.value())
+				.title("Não Autenticado!").detail(authException.getMessage()).devMessage(authException.getClass().getName()).build();
 		
 		return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
 	}
 	
 	@ExceptionHandler(AccessDeniedException.class)
-	public ResponseEntity<?> handleAuthenticationException(AccessDeniedException accessException, HttpServletResponse response) {
+	public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException accessException, HttpServletResponse response) {
 		
 		final ErrorDetails errorDetails = ErrorDetails.Builder.newBuilder().timestamp(new Date().getTime()).status(HttpStatus.FORBIDDEN.value())
 				.title("Não Autorizado!").detail(accessException.getMessage()).devMessage(accessException.getClass().getName()).build();

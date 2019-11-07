@@ -12,6 +12,12 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+/**
+ * Classe para tratar erros de Acesso Negado passados pelos filtros após
+ * validação de {@code Token}.
+ *
+ * @see AccessDeniedHandler
+ */
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 	
