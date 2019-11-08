@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pattern.spring.message.request.LoginForm;
+import com.pattern.spring.service.UserPrinciple;
 
 /**
  * Classe {@code filter} para tratar o login de usuários na {@code URI:/login}.
@@ -67,7 +68,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain,
 			final Authentication authResult) throws IOException, ServletException {
 		
-		final String jwt = jwtProvider.generateToken(authResult.getName());
+		final String jwt = jwtProvider.generateToken((UserPrinciple) authResult.getPrincipal());
 		
 		response.addHeader("Authorization", "Bearer " + jwt);
 	}

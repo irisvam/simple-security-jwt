@@ -16,8 +16,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.pattern.spring.service.UserDetailsServiceImpl;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -35,8 +33,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	
 	private final HandlerExceptionResolver resolver;
 	
-	private final UserDetailsServiceImpl userDetailsService;
-	
 	/**
 	 * Construtor da classe para prover os atributos internos necessários.
 	 *
@@ -46,16 +42,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	 *            gerar o {@code Token}
 	 * @param resolver uma classe {@link HandlerExceptionResolver} para
 	 *            tratativa dos erros via {@code JSON}
-	 * @param userDetailsService uma classe {@link UserDetailsServiceImpl} para
-	 *            consultar o usuário enviado pelo {@code Token}
 	 */
-	public JwtAuthorizationFilter(final AuthenticationManager authManager, final JwtProvider jwtProvider, final HandlerExceptionResolver resolver,
-			final UserDetailsServiceImpl userDetailsService) {
+	public JwtAuthorizationFilter(final AuthenticationManager authManager, final JwtProvider jwtProvider, final HandlerExceptionResolver resolver) {
 		
 		super(authManager);
 		this.jwtProvider = jwtProvider;
 		this.resolver = resolver;
-		this.userDetailsService = userDetailsService;
 	}
 	
 	@Override
@@ -66,55 +58,36 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		
 		if (null != authHeader && authHeader.startsWith("Bearer ")) {
 			
-			final String username = verificarToken(authHeader.replace("Bearer ", ""), request, response);
+			final String jwt = authHeader.replace("Bearer ", "");
 			
-			if (null != username) {
+			try {
 				
-				final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				if (null != jwtProvider.autenticarToken(jwt)) {
+					
+					final UserDetails userDetails = jwtProvider.extractUser(jwt);
+					
+					final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+							userDetails.getAuthorities());
+					
+					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				}
 				
-				final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-						userDetails.getAuthorities());
-				
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+			} catch (final SignatureException e) {
+				resolver.resolveException(request, response, null, new AuthenticationServiceException("Token inválido!", e));
+			} catch (final MalformedJwtException e) {
+				resolver.resolveException(request, response, null, new AuthenticationServiceException("Token mal formatado!", e));
+			} catch (final ExpiredJwtException e) {
+				resolver.resolveException(request, response, null, new AuthenticationServiceException("Token expirado!", e));
+			} catch (final UnsupportedJwtException e) {
+				resolver.resolveException(request, response, null, new AuthenticationServiceException("Token não suportado!", e));
+			} catch (final IllegalArgumentException e) {
+				resolver.resolveException(request, response, null, new AuthenticationServiceException("Tentativa de ler o Token não finalizado!", e));
 			}
 		}
 		
 		chain.doFilter(request, response);
-	}
-	
-	/**
-	 * Método para recuperar o usuário do {@code Token}
-	 * 
-	 * @param jwt um {@code String} com o {@code Token}
-	 * @param request um {@link HttpServletRequest} com as informações do
-	 *            servlet HTTP request
-	 * @param response um {@link HttpServletResponse} com as informações do
-	 *            servlet HTTP response
-	 * @return {@code String} com o login do usuário
-	 */
-	private String verificarToken(final String jwt, final HttpServletRequest request, final HttpServletResponse response) {
-		
-		String username = null;
-		
-		try {
-			
-			username = jwtProvider.extractUsername(jwt);
-			
-		} catch (final SignatureException e) {
-			resolver.resolveException(request, response, null, new AuthenticationServiceException("Token inválido!", e));
-		} catch (final MalformedJwtException e) {
-			resolver.resolveException(request, response, null, new AuthenticationServiceException("Token mal formatado!", e));
-		} catch (final ExpiredJwtException e) {
-			resolver.resolveException(request, response, null, new AuthenticationServiceException("Token expirado!", e));
-		} catch (final UnsupportedJwtException e) {
-			resolver.resolveException(request, response, null, new AuthenticationServiceException("Token não suportado!", e));
-		} catch (final IllegalArgumentException e) {
-			resolver.resolveException(request, response, null, new AuthenticationServiceException("Tentativa de ler o Token não finalizado!", e));
-		}
-		
-		return username;
 	}
 	
 }

@@ -40,12 +40,41 @@ public class UserPrinciple implements UserDetails {
 		this.authorities = authorities;
 	}
 	
+	/**
+	 * Método {@code build} para geração do usuário do tipo {@link UserDetails}
+	 * para reconhecimento do {@ code Spring Security} vindo da base de dados.
+	 * 
+	 * @param user um {@link User} com as informações do usuário na base de
+	 *            dados
+	 * @return {@link UserPrinciple} do tipo {@link UserDetails}
+	 */
 	public static UserPrinciple build(final User user) {
 		
 		final List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName().name()))
 				.collect(Collectors.toList());
 		
 		return new UserPrinciple(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
+	}
+	
+	/**
+	 * Método {@code build} para geração do usuário do tipo {@link UserDetails}
+	 * para reconhecimento do {@ code Spring Security} vindo do {@code Token}.
+	 * 
+	 * @param id um {@code Long} com o {@code ID} do usuário
+	 * @param name um {@code String} com o {@code nome} do usuário
+	 * @param username um {@code String} com o {@code username} do usuário
+	 * @param email um {@code String} com o {@code e-mail} do usuário
+	 * @param lista um {@code List<String>} com a lista dos {@code Roles}
+	 * @return {@link UserPrinciple} do tipo {@link UserDetails}
+	 */
+	public static UserPrinciple build(final Long id, final String name, final String username, final String email, final List<String> lista) {
+		
+		if (null == id || null == name || null == email || null == lista) {
+			
+			throw new IllegalArgumentException();
+		}
+		
+		return new UserPrinciple(id, name, username, email, null, lista.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
 	}
 	
 	public Long getId() {

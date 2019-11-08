@@ -103,7 +103,7 @@ public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
 	 */
 	private JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
 		
-		return new JwtAuthorizationFilter(authenticationManagerBean(), jwtProvider, resolver, userDetailsService);
+		return new JwtAuthorizationFilter(authenticationManagerBean(), jwtProvider, resolver);
 	}
 	
 }
