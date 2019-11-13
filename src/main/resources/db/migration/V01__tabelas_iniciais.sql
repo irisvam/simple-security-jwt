@@ -16,7 +16,7 @@ CREATE TABLE roles (
 	id bigint NOT NULL DEFAULT nextval('roles_id_seq'::regclass),
 	name character varying(15),
 	CONSTRAINT tb_roles_pkey PRIMARY KEY (id),
-	CONSTRAINT uk_tbroles_name UNIQUE (name)
+	CONSTRAINT uk_roles_name UNIQUE (name)
 );
 
 CREATE TABLE users (

@@ -2,7 +2,6 @@ package com.pattern.spring.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -42,7 +41,7 @@ public class UserPrinciple implements UserDetails {
 	
 	/**
 	 * Método {@code build} para geração do usuário do tipo {@link UserDetails}
-	 * para reconhecimento do {@ code Spring Security} vindo da base de dados.
+	 * para reconhecimento do {@code Spring Security} vindo da base de dados.
 	 * 
 	 * @param user um {@link User} com as informações do usuário na base de
 	 *            dados
@@ -58,7 +57,7 @@ public class UserPrinciple implements UserDetails {
 	
 	/**
 	 * Método {@code build} para geração do usuário do tipo {@link UserDetails}
-	 * para reconhecimento do {@ code Spring Security} vindo do {@code Token}.
+	 * para reconhecimento do {@code Spring Security} vindo do {@code Token}.
 	 * 
 	 * @param id um {@code Long} com o {@code ID} do usuário
 	 * @param name um {@code String} com o {@code nome} do usuário
@@ -135,17 +134,35 @@ public class UserPrinciple implements UserDetails {
 	}
 	
 	@Override
-	public boolean equals(final Object o) {
+	public int hashCode() {
 		
-		if (this == o) {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		
+		if (this == obj) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (obj == null) {
 			return false;
 		}
-		
-		final UserPrinciple user = (UserPrinciple) o;
-		return Objects.equals(id, user.id);
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final UserPrinciple other = (UserPrinciple) obj;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
 	}
 	
 }

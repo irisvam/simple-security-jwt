@@ -22,64 +22,77 @@ import com.pattern.spring.configuration.jwt.JwtAuthorizationFilter;
 import com.pattern.spring.configuration.jwt.JwtProvider;
 import com.pattern.spring.service.UserDetailsServiceImpl;
 
+/**
+ * Classe de Configuração Spring Security para os Beans iniciais.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
-	
+
 	@Autowired
-	UserDetailsServiceImpl userDetailsService;
-	
+	private UserDetailsServiceImpl userDetailsService;
+
 	@Autowired
 	private JwtAuthEntryPoint authEntryHandler;
-	
+
 	@Autowired
 	private JwtAccessDeniedHandler accessDeniedHandler;
-	
+
 	@Autowired
-	JwtProvider jwtProvider;
-	
+	private JwtProvider jwtProvider;
+
 	@Autowired
 	private HandlerExceptionResolver resolver;
-	
+
 	@Override
 	public void configure(final AuthenticationManagerBuilder authBuilder) throws Exception {
-		
+
 		authBuilder.authenticationProvider(authenticationProvider());
 	}
-	
+
+	/**
+	 * Instância do usuário autenticado.
+	 *
+	 * @return {@link DaoAuthenticationProvider}
+	 */
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
-		
+
 		final DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 		authProvider.setPasswordEncoder(passwordEncoder());
 		authProvider.setUserDetailsService(userDetailsService);
-		
+
 		return authProvider;
 	}
-	
+
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
-		
+
 		return super.authenticationManagerBean();
 	}
-	
+
+	/**
+	 * Instânciação do encoder para o {@code Password}.
+	 *
+	 * @return {@link BCryptPasswordEncoder}
+	 */
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		
+
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
-		
+
 		http.cors().and().csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().formLogin().permitAll().and().logout().permitAll().and()
 				.addFilter(jwtAuthenticationFilter()).addFilter(jwtAuthorizationFilter()).exceptionHandling()
 				.authenticationEntryPoint(authEntryHandler).and().exceptionHandling().accessDeniedHandler(accessDeniedHandler);
 	}
-	
+
 	/**
 	 * Criação do filter de Autenticação.
 	 *
@@ -87,14 +100,14 @@ public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
 	 * @throws Exception para tratamento de erro
 	 */
 	private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-		
+
 		final JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProvider, resolver);
-		
+
 		filter.setAuthenticationManager(authenticationManagerBean());
-		
+
 		return filter;
 	}
-	
+
 	/**
 	 * Criação do filter de Autorização.
 	 *
@@ -102,8 +115,8 @@ public class AppConfigSecurity extends WebSecurityConfigurerAdapter {
 	 * @throws Exception para tratamento de erro
 	 */
 	private JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-		
+
 		return new JwtAuthorizationFilter(authenticationManagerBean(), jwtProvider, resolver);
 	}
-	
+
 }
