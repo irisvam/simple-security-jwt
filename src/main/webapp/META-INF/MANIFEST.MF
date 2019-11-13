@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: ${project.name}
+Specification-Version: ${project.version}
+Specification-Vendor: Teste
+Implementation-Title: simple-security-jwt
+Implementation-Version: ${build.number}
+Implementation-Vendor: com.pattern.spring
+Build-Jdk: ${java.version}
+Built-By: ${user.name}
+Build-Time: ${maven.build.timestamp}
