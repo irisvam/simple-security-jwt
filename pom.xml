@@ -10,7 +10,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<springframework.version>5.2.0.RELEASE</springframework.version>
+		<springframework.version>5.3.18</springframework.version>
 		<springdata.version>2.2.0.RELEASE</springdata.version>
 		<springsecurity.version>5.2.0.RELEASE</springsecurity.version>
 		<hibernate.version>5.2.17.Final</hibernate.version>
